@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Morning Warmup Timer</title>
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="topbar" aria-label="Timer controls">
+        <div>
+          <p class="eyebrow">Morning Warmup</p>
+          <h1>15-minute movement flow</h1>
+        </div>
+        <div class="controls">
+          <button id="startPauseButton" class="button button-primary" type="button">
+            Start
+          </button>
+          <button id="resetButton" class="button" type="button">Reset</button>
+        </div>
+      </section>
+
+      <section class="main-panel">
+        <p class="minute-label" id="minuteLabel">Minute 1 of 15</p>
+        <div class="timer" id="timer" aria-live="polite">15:00.000</div>
+        <div class="exercise-block" aria-live="polite" aria-atomic="true">
+          <p class="exercise-label">Current exercise</p>
+          <div class="exercise-name" id="exerciseName">Hop</div>
+          <div class="next-exercise" id="nextExercise" hidden>
+            <span class="next-label">Next in 10</span>
+            <span class="next-name" id="nextExerciseName">Body wave</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="sequence" aria-label="Exercise sequence">
+        <p class="eyebrow">Sequence</p>
+        <ol class="sequence-list" id="sequenceList"></ol>
+      </section>
+
+      <footer class="footer">Built for a calm, readable warmup flow.</footer>
+    </main>
+
+    <script src="./script.js"></script>
+  </body>
+</html>
