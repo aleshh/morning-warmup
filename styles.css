@@ -11,6 +11,8 @@
   --accent-deep: #2f6146;
   --shadow: 0 22px 60px rgba(44, 77, 56, 0.12);
   --radius: 8px;
+  --exercise-display-size: clamp(2.9rem, 5.4vw, 6.2rem);
+  --timer-display-size: clamp(4.35rem, 8.1vw, 9.3rem);
 }
 
 * {
@@ -28,31 +30,16 @@ body {
 
 body {
   margin: 0;
-  background:
-    linear-gradient(180deg, rgba(247, 252, 246, 0.55), rgba(211, 239, 214, 0) 28%),
-    linear-gradient(135deg, rgba(247, 252, 246, 0.32), rgba(232, 245, 231, 0.1)),
-    var(--background);
+  background: var(--background);
   color: var(--ink);
   font-family: "IBM Plex Sans", sans-serif;
-}
-
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  background-image:
-    linear-gradient(to right, transparent 0, transparent calc(100% - 1px), var(--grid-line) calc(100% - 1px)),
-    linear-gradient(to bottom, transparent 0, transparent calc(100% - 1px), rgba(55, 90, 71, 0.12) calc(100% - 1px));
-  background-size: 48px 48px;
-  opacity: 0.18;
 }
 
 .app-shell {
   position: relative;
   max-width: 1320px;
   margin: 0 auto;
-  padding: 40px 24px 64px;
+  padding: 40px 24px;
 }
 
 .topbar {
@@ -119,6 +106,28 @@ h1 {
   border-color: #274f39;
 }
 
+.button-glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 3.2rem;
+  padding-inline: 0.9rem;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.button-icon {
+  display: inline-flex;
+  width: 1.95rem;
+  height: 1.25rem;
+}
+
+.button-icon svg {
+  width: 100%;
+  height: 100%;
+  fill: currentColor;
+}
+
 .main-panel {
   margin-top: 28px;
   padding: clamp(24px, 4vw, 48px);
@@ -144,16 +153,22 @@ h1 {
 
 .timer {
   font-family: "IBM Plex Mono", monospace;
-  font-size: clamp(3.8rem, 12vw, 9.5rem);
+  font-size: var(--timer-display-size);
   font-weight: 500;
   line-height: 0.9;
-  letter-spacing: -0.06em;
+  letter-spacing: -0.05em;
 }
 
 .exercise-block {
   margin-top: 28px;
   display: grid;
   gap: 14px;
+}
+
+.exercise-line {
+  display: flex;
+  align-items: flex-start;
+  gap: clamp(16px, 2vw, 28px);
 }
 
 .exercise-label {
@@ -164,20 +179,33 @@ h1 {
 }
 
 .exercise-name {
-  font-family: "IBM Plex Serif", serif;
-  font-size: clamp(2.2rem, 6vw, 5.2rem);
-  line-height: 0.96;
+  font-family: "IBM Plex Mono", monospace;
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: var(--exercise-display-size);
+  font-weight: 500;
+  line-height: 0.9;
+  letter-spacing: -0.05em;
+  white-space: nowrap;
 }
 
 .next-exercise {
   display: inline-flex;
-  align-items: baseline;
+  flex-direction: column;
+  justify-content: center;
+  align-self: flex-start;
   gap: 12px;
-  width: fit-content;
-  padding: 12px 16px;
+  flex: 0 0 min(18rem, 28vw);
+  margin-top: 0.45rem;
+  padding: 18px 20px;
   border-radius: var(--radius);
   border: 1px solid rgba(47, 97, 70, 0.22);
   background: rgba(77, 139, 103, 0.1);
+  opacity: 0;
+  transition:
+    opacity 220ms ease,
+    background-color 220ms ease,
+    border-color 220ms ease;
 }
 
 .next-label {
@@ -187,13 +215,17 @@ h1 {
 }
 
 .next-name {
-  font-size: clamp(1.1rem, 2.2vw, 1.6rem);
+  font-size: clamp(1.2rem, 2.2vw, 1.9rem);
   font-weight: 600;
   color: var(--accent-deep);
 }
 
-.next-exercise.is-flashing {
-  animation: flashCue 1s steps(2, jump-none) infinite;
+.next-exercise.is-visible {
+  opacity: 1;
+}
+
+.next-exercise.is-pulsing {
+  animation: pulseCue 1.4s ease-in-out infinite;
 }
 
 .sequence {
@@ -210,23 +242,54 @@ h1 {
 }
 
 .sequence-list li {
-  padding: 12px 0;
-  border-top: 1px solid var(--panel-line);
+  display: grid;
+  gap: 4px;
+  padding: 12px 14px;
+  border: 1px solid transparent;
+  border-top-color: var(--panel-line);
+  border-radius: var(--radius);
   color: var(--muted);
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease;
+}
+
+.sequence-role {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
 }
 
 .sequence-list li strong {
-  display: block;
-  margin-top: 4px;
   color: var(--ink);
   font-family: "IBM Plex Serif", serif;
   font-size: 1.15rem;
   font-weight: 500;
 }
 
-.sequence-list li.is-active strong,
-.sequence-list li.is-active {
+.sequence-list li.is-current {
+  background: rgba(47, 97, 70, 0.2);
+  border-color: rgba(47, 97, 70, 0.46);
+}
+
+.sequence-list li.is-current strong,
+.sequence-list li.is-current .sequence-role,
+.sequence-list li.is-current {
   color: var(--accent-deep);
+}
+
+.sequence-list li.is-next {
+  background: rgba(225, 243, 229, 0.92);
+  border-color: rgba(77, 139, 103, 0.32);
+}
+
+.sequence-list li.is-next strong,
+.sequence-list li.is-next .sequence-role,
+.sequence-list li.is-next {
+  color: #476b58;
 }
 
 .footer {
@@ -235,19 +298,42 @@ h1 {
   font-size: 0.92rem;
 }
 
-@keyframes flashCue {
+.footer a {
+  color: var(--accent-deep);
+  text-decoration-color: rgba(47, 97, 70, 0.28);
+  text-underline-offset: 0.16em;
+}
+
+.footer a:hover {
+  text-decoration-color: currentColor;
+}
+
+@keyframes pulseCue {
   0%,
-  49% {
-    background: rgba(77, 139, 103, 0.1);
-    color: inherit;
-    transform: translateX(0);
+  100% {
+    background: rgba(77, 139, 103, 0.08);
+    border-color: rgba(47, 97, 70, 0.18);
+    box-shadow: none;
   }
 
   50%,
-  100% {
-    background: rgba(47, 97, 70, 0.92);
-    color: #f5fbf4;
-    transform: translateX(1px);
+  60% {
+    background: rgba(77, 139, 103, 0.28);
+    border-color: rgba(47, 97, 70, 0.36);
+    box-shadow: 0 0 0 10px rgba(77, 139, 103, 0.1);
+  }
+}
+
+@media (orientation: portrait) {
+  .exercise-line {
+    flex-direction: column;
+    align-items: start;
+  }
+
+  .next-exercise {
+    flex-basis: auto;
+    width: 100%;
+    margin-top: 0;
   }
 }
 
@@ -278,8 +364,6 @@ h1 {
   }
 
   .next-exercise {
-    flex-direction: column;
-    align-items: start;
     gap: 6px;
   }
 }

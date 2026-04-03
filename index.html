@@ -21,10 +21,24 @@
           <h1>15-minute movement flow</h1>
         </div>
         <div class="controls">
+          <button id="backButton" class="button button-glyph" type="button" aria-label="Previous minute">
+            <span class="button-icon" aria-hidden="true">
+              <svg viewBox="0 0 8 10" focusable="false">
+                <path d="M0 5L8 0V10L0 5Z" />
+              </svg>
+            </span>
+          </button>
+          <button id="forwardButton" class="button button-glyph" type="button" aria-label="Next minute">
+            <span class="button-icon" aria-hidden="true">
+              <svg viewBox="0 0 8 10" focusable="false">
+                <path d="M8 5L0 0V10L8 5Z" />
+              </svg>
+            </span>
+          </button>
+          <button id="resetButton" class="button" type="button">Reset</button>
           <button id="startPauseButton" class="button button-primary" type="button">
             Start
           </button>
-          <button id="resetButton" class="button" type="button">Reset</button>
         </div>
       </section>
 
@@ -33,10 +47,12 @@
         <div class="timer" id="timer" aria-live="polite">15:00.000</div>
         <div class="exercise-block" aria-live="polite" aria-atomic="true">
           <p class="exercise-label">Current exercise</p>
-          <div class="exercise-name" id="exerciseName">Hop</div>
-          <div class="next-exercise" id="nextExercise" hidden>
-            <span class="next-label">Next in 10</span>
-            <span class="next-name" id="nextExerciseName">Body wave</span>
+          <div class="exercise-line">
+            <div class="exercise-name" id="exerciseName">Hop</div>
+            <div class="next-exercise" id="nextExercise" aria-hidden="true">
+              <span class="next-label">Next in 10</span>
+              <span class="next-name" id="nextExerciseName">Body wave</span>
+            </div>
           </div>
         </div>
       </section>
@@ -46,7 +62,13 @@
         <ol class="sequence-list" id="sequenceList"></ol>
       </section>
 
-      <footer class="footer">Built for a calm, readable warmup flow.</footer>
+      <footer class="footer">
+        Inspired by
+        <a href="https://www.instagram.com/reel/DWWYP3Kjlp3/" target="_blank" rel="noreferrer">this post by @tulumtrainer</a>.
+        Built with 🍕 by
+        <a href="https://alesh.com" target="_blank" rel="noreferrer">Alesh</a>.
+        <a href="https://github.com/aleshh/morning-warmup" target="_blank" rel="noreferrer">GitHub</a>.
+      </footer>
     </main>
 
     <script src="./script.js"></script>

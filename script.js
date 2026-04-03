@@ -25,6 +25,8 @@ const exerciseName = document.getElementById("exerciseName");
 const nextExercise = document.getElementById("nextExercise");
 const nextExerciseName = document.getElementById("nextExerciseName");
 const startPauseButton = document.getElementById("startPauseButton");
+const backButton = document.getElementById("backButton");
+const forwardButton = document.getElementById("forwardButton");
 const resetButton = document.getElementById("resetButton");
 const sequenceList = document.getElementById("sequenceList");
 
@@ -39,7 +41,7 @@ function renderSequence() {
     .map(
       (exercise, index) => `
         <li data-minute-index="${index}">
-          <span>${String(index + 1).padStart(2, "0")}</span>
+          <span class="sequence-role">${String(index + 1).padStart(2, "0")}</span>
           <strong>${exercise}</strong>
         </li>
       `
@@ -58,13 +60,21 @@ function formatTime(elapsedMs) {
   ).padStart(2, "0")}`;
 }
 
-function updateSequenceHighlight(activeMinuteIndex) {
+function updateSequenceHighlight(currentMinuteIndex, nextMinuteIndex = null) {
   const items = sequenceList.querySelectorAll("li");
   items.forEach((item) => {
-    item.classList.toggle(
-      "is-active",
-      Number(item.dataset.minuteIndex) === activeMinuteIndex
-    );
+    const minuteIndex = Number(item.dataset.minuteIndex);
+    const roleLabel = item.querySelector(".sequence-role");
+    const isCurrent = minuteIndex === currentMinuteIndex;
+    const isNext = minuteIndex === nextMinuteIndex;
+
+    item.classList.toggle("is-current", isCurrent);
+    item.classList.toggle("is-next", isNext);
+    roleLabel.textContent = isCurrent
+      ? "Current"
+      : isNext
+        ? "Next"
+        : String(minuteIndex + 1).padStart(2, "0");
   });
 }
 
@@ -84,13 +94,16 @@ function render(overrideElapsedMs = null) {
     ? "Complete"
     : `Minute ${minuteIndex + 1} of ${exercises.length}`;
   exerciseName.textContent = isComplete ? "Warmup complete" : exercises[minuteIndex];
-  updateSequenceHighlight(isComplete ? exercises.length - 1 : minuteIndex);
 
   const hasNextExercise = minuteIndex < exercises.length - 1;
   const showNextCue = !isComplete && hasNextExercise && remainingInMinute <= 10000;
+  const nextMinuteIndex = !isComplete && hasNextExercise ? minuteIndex + 1 : null;
 
-  nextExercise.hidden = !showNextCue;
-  nextExercise.classList.toggle("is-flashing", showNextCue);
+  updateSequenceHighlight(isComplete ? exercises.length - 1 : minuteIndex, nextMinuteIndex);
+
+  nextExercise.classList.toggle("is-visible", showNextCue);
+  nextExercise.classList.toggle("is-pulsing", showNextCue);
+  nextExercise.setAttribute("aria-hidden", showNextCue ? "false" : "true");
   if (showNextCue) {
     const secondsLeft = Math.max(1, Math.ceil(remainingInMinute / 1000));
     nextExerciseName.textContent = exercises[minuteIndex + 1];
@@ -98,8 +111,8 @@ function render(overrideElapsedMs = null) {
   }
 
   if (isComplete) {
-    nextExercise.hidden = true;
-    nextExercise.classList.remove("is-flashing");
+    nextExercise.classList.remove("is-visible", "is-pulsing");
+    nextExercise.setAttribute("aria-hidden", "true");
     startPauseButton.textContent = "Restart";
     isRunning = false;
     elapsedBeforePause = totalDurationMs;
@@ -137,6 +150,43 @@ function startTimer() {
   animationFrameId = requestAnimationFrame(tick);
 }
 
+function getElapsedMs() {
+  return isRunning ? performance.now() - startTime : elapsedBeforePause;
+}
+
+function seekToElapsed(targetElapsedMs) {
+  const clampedElapsed = Math.max(0, Math.min(targetElapsedMs, totalDurationMs));
+
+  elapsedBeforePause = clampedElapsed;
+  hasCompleted = clampedElapsed >= totalDurationMs;
+
+  if (isRunning) {
+    startTime = performance.now() - clampedElapsed;
+  }
+
+  render(clampedElapsed);
+}
+
+function jumpToPreviousMinute() {
+  const elapsedMs = getElapsedMs();
+  const isOnExactMinute = elapsedMs > 0 && elapsedMs % minuteMs === 0;
+  const targetElapsedMs = isOnExactMinute
+    ? elapsedMs - minuteMs
+    : Math.floor(elapsedMs / minuteMs) * minuteMs;
+
+  seekToElapsed(targetElapsedMs);
+}
+
+function jumpToNextMinute() {
+  const elapsedMs = getElapsedMs();
+  const isOnExactMinute = elapsedMs % minuteMs === 0;
+  const targetElapsedMs = isOnExactMinute
+    ? elapsedMs + minuteMs
+    : Math.ceil(elapsedMs / minuteMs) * minuteMs;
+
+  seekToElapsed(targetElapsedMs);
+}
+
 function pauseTimer() {
   if (!isRunning) {
     return;
@@ -172,6 +222,8 @@ startPauseButton.addEventListener("click", () => {
 });
 
 resetButton.addEventListener("click", resetTimer);
+backButton.addEventListener("click", jumpToPreviousMinute);
+forwardButton.addEventListener("click", jumpToNextMinute);
 
 renderSequence();
 render(0);
