@@ -94,6 +94,7 @@ function render(overrideElapsedMs = null) {
     ? "Complete"
     : `Minute ${minuteIndex + 1} of ${exercises.length}`;
   exerciseName.textContent = isComplete ? "Warmup complete" : exercises[minuteIndex];
+  exerciseName.classList.toggle("is-complete", isComplete);
 
   const hasNextExercise = minuteIndex < exercises.length - 1;
   const showNextCue = !isComplete && hasNextExercise && remainingInMinute <= 10000;

@@ -189,6 +189,10 @@ h1 {
   white-space: nowrap;
 }
 
+.exercise-name.is-complete {
+  white-space: normal;
+}
+
 .next-exercise {
   display: inline-flex;
   flex-direction: column;
